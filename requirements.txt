@@ -1,2 +1,3 @@
 Flask==1.1.2
 ansible-runner==1.4.6
+gunicorn==20.0.4
