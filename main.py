@@ -13,7 +13,7 @@ CORS(app)
 
 
 @app.route("/api/playbook", methods=["POST"])
-def execute():
+def route_playbook():
     data = request.json
 
     # check for missing keys
@@ -66,11 +66,15 @@ def execute():
 
 
 @app.route("/api/inventory")
-def inventory():
+def route_inventory():
     command = [
         "ansible-inventory",
         "--list"
     ]
+    inventory = request.args.get('inventory')
+    if inventory:
+        command.append("-i")
+        command.append(inventory)
     output = subprocess.check_output(
         command,
         cwd=ANSIBLE_PROJECT_PATH
