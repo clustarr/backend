@@ -1,12 +1,15 @@
-from flask import Flask, jsonify, request
-import os
-import sys
 import json
+import os
 import subprocess
+import sys
+
+from flask import Flask, jsonify, request
+from flask_cors import CORS
+
 from config import *
 
-
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route("/api/playbook", methods=["POST"])
