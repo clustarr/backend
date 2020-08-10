@@ -42,7 +42,7 @@ def route_playbook():
         "ansible-playbook",
         playbook,
         "--extra-vars",
-        "\"{}\"".format(extra_vars_str)
+        extra_vars_str
     ]
     process = subprocess.Popen(
         command,
