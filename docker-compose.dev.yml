@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  # enables live reload
+  celery:
+    volumes:
+      - .:/usr/src/app
+    command: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery worker --app main.celery --broker='redis://redis:6379/0' --result-backend='redis://redis:6379/0' --loglevel=info
+
+  # enables live reload
+  flask:
+    volumes:
+      - .:/usr/src/app
+    command: python main.py

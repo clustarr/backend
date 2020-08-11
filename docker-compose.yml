@@ -1,15 +1,20 @@
 version: '3'
 
 services:
+  # redis is used by app and celery to exchange background task information
   redis:
     image: redis:alpine
     expose:
       - 6379
 
+  # this service builds the image used by celery and app and exits afterwards
   build:
     image: app
     build: .
 
+  # celery executes playbooks in the background
+  # we need to pass through the ansible project path that contains the playbooks,
+  # the ssh keys to connect to remote hosts and the proxmox inventory script
   celery:
     image: app
     restart: unless-stopped
@@ -25,6 +30,7 @@ services:
       - redis
     command: celery worker --app main.celery --broker='redis://redis:6379/0' --result-backend='redis://redis:6379/0' --loglevel=info
 
+  # flask provides the api and forwards playbook tasks to the celery service
   flask:
     image: app
     restart: unless-stopped
