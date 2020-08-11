@@ -1,11 +1,12 @@
 import json
+import os
 import subprocess
 
 from celery import Celery
 from flask import Flask, jsonify, request, url_for
 from flask_cors import CORS
 
-from config import *
+from config import ANSIBLE_PROJECT_PATH, CELERY_BROKER_URL, CELERY_RESULT_BACKEND
 
 app = Flask(__name__)
 
