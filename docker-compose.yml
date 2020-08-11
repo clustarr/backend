@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:alpine
+    expose:
+      - 6379
+
+  build:
+    image: app
+    build: .
+
+  celery:
+    image: app
+    restart: unless-stopped
+    environment:
+      ANSIBLE_PROJECT_PATH: /ansible
+    volumes:
+      - /home/lucas/Projects/clustarr/ansible:/ansible:ro
+      - /home/lucas/.ssh:/root/.ssh/:ro
+      - /etc/ansible/proxmox.py:/etc/ansible/proxmox.py:ro
+      - /etc/ansible/proxmox.json:/etc/ansible/proxmox.json:ro
+    depends_on:
+      - build
+      - redis
+    command: celery worker --app main.celery --broker='redis://redis:6379/0' --result-backend='redis://redis:6379/0' --loglevel=info
+
+  flask:
+    image: app
+    restart: unless-stopped
+    ports:
+      - 5000:5000
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379/0
+      CELERY_RESULT_BACKEND: redis://redis:6379/0
+    depends_on:
+      - build
+      - celery
+    command: gunicorn --bind 0.0.0.0:5000 wsgi:app
