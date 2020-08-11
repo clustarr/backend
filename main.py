@@ -1,49 +1,47 @@
 import json
-import os
 import subprocess
-import sys
 
-from flask import Flask, jsonify, request
+from celery import Celery
+from flask import Flask, jsonify, request, url_for
 from flask_cors import CORS
 
 from config import *
 
 app = Flask(__name__)
+
 CORS(app)
 
+app.config['CELERY_BROKER_URL'] = CELERY_BROKER_URL
+app.config['CELERY_RESULT_BACKEND'] = CELERY_RESULT_BACKEND
+celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery.conf.update(app.config)
 
-@app.route("/api/playbook", methods=["POST"])
-def route_playbook():
-    data = request.json
 
-    # check for missing keys
-    for key in ["playbook", "extra_vars"]:
-        if key not in data:
-            return jsonify({
-                "error": "{} not specified".format(key)
-            })
+@celery.task(bind=True)
+def run_playbook(self, data):
+    playbook = data.get("playbook")
+    extra_vars = data.get("extra_vars")
 
     # check if playbook exists
-    playbook = data.get("playbook")
     playbook_path = os.path.join(ANSIBLE_PROJECT_PATH, playbook)
     if not os.path.isfile(playbook_path):
-        return jsonify({
-            "error": "Playbook does not exist"
-        })
-
-    # build variables string
-    extra_vars = data.get("extra_vars")
-    extra_vars_str = ""
-    for key, value in extra_vars.items():
-        extra_vars_str += "{}={} ".format(key, value)
-    extra_vars_str = extra_vars_str.strip()
+        raise Exception("Playbook does not exist")
 
     command = [
         "ansible-playbook",
-        playbook,
-        "--extra-vars",
-        extra_vars_str
+        playbook
     ]
+
+    # add extra-vars to command
+    if extra_vars:
+        extra_vars_str = ""
+        for key, value in extra_vars.items():
+            extra_vars_str += "{}={} ".format(key, value)
+        extra_vars_str = extra_vars_str.strip()
+        command.append("--extra-vars")
+        command.append(extra_vars_str)
+
+    # execute command
     process = subprocess.Popen(
         command,
         cwd=ANSIBLE_PROJECT_PATH,
@@ -55,14 +53,37 @@ def route_playbook():
     # read new lines while process is running
     while process.poll() is None:
         line = process.stdout.readline().decode()
-        sys.stdout.write(line)
         lines.append(line)
+        self.update_state(state='PROGRESS', meta={'lines': lines})
     # read the rest after process has stopped
     line = process.stdout.read().decode()
-    sys.stdout.write(line)
     lines.append(line)
+    return {
+        'lines': lines
+    }
 
-    return jsonify(lines)
+
+@app.route("/api/playbook", methods=["POST"])
+def route_playbook():
+    data = request.json
+    task = run_playbook.delay(data)
+    return jsonify({}), 202, {'Location': url_for('route_playbook_status', task_id=task.id)}
+
+
+@app.route('/api/playbook/<task_id>')
+def route_playbook_status(task_id):
+    task = run_playbook.AsyncResult(task_id)
+    if task.state == 'FAILURE':
+        response = {
+            'state': task.state,
+            'error': str(task.info),  # exception message
+        }
+    else:
+        response = {
+            'state': task.state,
+            'lines': task.info.get('lines', []),
+        }
+    return jsonify(response)
 
 
 @app.route("/api/inventory")
@@ -84,4 +105,4 @@ def route_inventory():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", debug=True)
