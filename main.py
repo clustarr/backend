@@ -14,7 +14,7 @@ CORS(app)
 
 app.config['CELERY_BROKER_URL'] = CELERY_BROKER_URL
 app.config['CELERY_RESULT_BACKEND'] = CELERY_RESULT_BACKEND
-celery = Celery(app.name, broker=app.config['CELERY_BROKER_URL'])
+celery = Celery(app.name, broker=CELERY_BROKER_URL, backend=CELERY_RESULT_BACKEND)
 celery.conf.update(app.config)
 
 
@@ -50,17 +50,17 @@ def run_playbook(self, data):
         stderr=subprocess.STDOUT
     )
 
-    lines = []
+    output = ""
     # read new lines while process is running
     while process.poll() is None:
         line = process.stdout.readline().decode()
-        lines.append(line)
-        self.update_state(state='PROGRESS', meta={'lines': lines})
+        output += line
+        self.update_state(state='PROGRESS', meta={'output': output.strip()})
     # read the rest after process has stopped
     line = process.stdout.read().decode()
-    lines.append(line)
+    output += line
     return {
-        'lines': lines
+        'output': output.strip()
     }
 
 
@@ -77,12 +77,12 @@ def route_playbook_status(task_id):
     if task.state == 'FAILURE':
         response = {
             'state': task.state,
-            'error': str(task.info),  # exception message
+            'output': str(task.info),  # exception message
         }
     else:
         response = {
             'state': task.state,
-            'lines': task.info.get('lines', []),
+            'output': task.info.get('output', ""),
         }
     return jsonify(response)
 
