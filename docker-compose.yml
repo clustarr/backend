@@ -20,8 +20,8 @@ services:
     restart: unless-stopped
     environment:
       ANSIBLE_PROJECT_PATH: /ansible
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis
+      CELERY_RESULT_BACKEND: redis://redis
     volumes:
       - /home/lucas/Projects/clustarr/ansible:/ansible:ro
       - /home/lucas/.ssh:/root/.ssh/:ro
@@ -40,8 +40,8 @@ services:
       - 5000:5000
     environment:
       ANSIBLE_PROJECT_PATH: /ansible
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      CELERY_BROKER_URL: redis://redis
+      CELERY_RESULT_BACKEND: redis://redis
     volumes:
       - /home/lucas/Projects/clustarr/ansible:/ansible:ro
       - /etc/ansible/proxmox.py:/etc/ansible/proxmox.py:ro
