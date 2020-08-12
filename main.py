@@ -56,7 +56,6 @@ def run_playbook(self, data):
         line = process.stdout.readline().decode()
         output += line
         self.update_state(state='PROGRESS', meta={'output': output.strip()})
-        self.send_event('task-custom', output=output.strip())
     # read the rest after process has stopped
     line = process.stdout.read().decode()
     output += line
