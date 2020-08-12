@@ -5,7 +5,7 @@ services:
   celery:
     volumes:
       - .:/usr/src/app
-    command: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery worker --app main.celery --broker='redis://redis:6379/0' --result-backend='redis://redis:6379/0' --loglevel=info
+    command: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery worker --app main.celery --loglevel=info
 
   # enables live reload
   flask:
