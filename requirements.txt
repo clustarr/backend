@@ -6,3 +6,4 @@ redis==3.5.3
 ansible==2.9.12
 watchdog==0.10.3
 argh==0.26.2
+flower==0.9.5

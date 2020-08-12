@@ -32,6 +32,20 @@ services:
       - redis
     command: celery worker --app main.celery --loglevel=info
 
+  # flower provides a task api for celery
+  flower:
+    image: app
+    restart: unless-stopped
+    ports:
+      - 5555:5555
+    environment:
+      CELERY_BROKER_URL: redis://redis
+      CELERY_RESULT_BACKEND: redis://redis
+    depends_on:
+      - build
+      - redis
+    command: celery flower --app main.celery --loglevel=info
+
   # flask provides the api and forwards playbook tasks to the celery service
   flask:
     image: app
