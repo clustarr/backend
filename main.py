@@ -81,9 +81,12 @@ def route_playbook_status(task_id):
             'output': str(task.info),  # exception message
         }
     else:
+        output = ""
+        if task.info:
+            output = task.info.get('output', "")
         response = {
             'state': task.state,
-            'output': task.info.get('output', ""),
+            'output': output,
         }
     return jsonify(response)
 
