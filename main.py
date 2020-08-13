@@ -59,6 +59,8 @@ def run_playbook(self, data):
     # read the rest after process has stopped
     line = process.stdout.read().decode()
     output += line
+    if process.returncode != 0:
+        self.update_state(state='FAILURE', meta={'output': output.strip()})
     return {
         'output': output.strip()
     }
