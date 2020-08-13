@@ -19,10 +19,7 @@ celery.conf.update(app.config)
 
 
 @celery.task(bind=True)
-def run_playbook(self, data):
-    playbook = data.get("playbook")
-    extra_vars = data.get("extra_vars")
-
+def run_playbook(self, playbook, extra_vars=None):
     # check if playbook exists
     playbook_path = os.path.join(ANSIBLE_PROJECT_PATH, playbook)
     if not os.path.isfile(playbook_path):
@@ -69,7 +66,9 @@ def run_playbook(self, data):
 @app.route("/api/playbook", methods=["POST"])
 def route_playbook():
     data = request.json
-    task = run_playbook.delay(data)
+    playbook = data.get("playbook")
+    extra_vars = data.get("extra_vars")
+    task = run_playbook.delay(playbook=playbook, extra_vars=extra_vars)
     return jsonify({}), 202, {'Location': url_for('route_playbook_status', task_id=task.id)}
 
 
