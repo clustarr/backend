@@ -58,7 +58,7 @@ def run_playbook(self, playbook, extra_vars=None):
     line = process.stdout.read().decode()
     output += line
     if process.returncode != 0:
-        raise PlaybookException()
+        raise PlaybookException(output.strip())
     return {
         'output': output.strip()
     }
