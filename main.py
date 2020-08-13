@@ -7,6 +7,7 @@ from flask import Flask, jsonify, request, url_for
 from flask_cors import CORS
 
 from config import ANSIBLE_PROJECT_PATH, CELERY_BROKER_URL, CELERY_RESULT_BACKEND
+from exceptions import PlaybookException
 
 app = Flask(__name__)
 
@@ -57,7 +58,7 @@ def run_playbook(self, playbook, extra_vars=None):
     line = process.stdout.read().decode()
     output += line
     if process.returncode != 0:
-        self.update_state(state='FAILURE', meta={'output': output.strip()})
+        raise PlaybookException()
     return {
         'output': output.strip()
     }

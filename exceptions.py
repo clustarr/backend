@@ -1,0 +1,2 @@
+class PlaybookException(Exception):
+    pass
