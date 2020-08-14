@@ -5,10 +5,10 @@ services:
   celery:
     volumes:
       - .:/usr/src/app
-    command: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery worker --app main.celery --loglevel=info
+    command: watchmedo auto-restart --directory=./ --pattern=*.py --recursive -- celery worker --app clustarr_backend.celery --loglevel=info
 
   # enables live reload
   flask:
     volumes:
       - .:/usr/src/app
-    command: python main.py
+    command: python run.py

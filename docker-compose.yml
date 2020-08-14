@@ -30,7 +30,7 @@ services:
     depends_on:
       - build
       - redis
-    command: celery worker --app main.celery --loglevel=info
+    command: celery worker --app clustarr_backend.celery --loglevel=info
 
   # flower provides a task api for celery
   flower:
@@ -44,7 +44,7 @@ services:
     depends_on:
       - build
       - redis
-    command: celery flower --app main.celery --loglevel=info
+    command: celery flower --app clustarr_backend.celery --loglevel=info
 
   # flask provides the api and forwards playbook tasks to the celery service
   flask:
@@ -63,4 +63,4 @@ services:
     depends_on:
       - build
       - celery
-    command: gunicorn --bind 0.0.0.0:5000 wsgi:app
+    command: gunicorn --bind 0.0.0.0:5000 clustarr_backend:app
