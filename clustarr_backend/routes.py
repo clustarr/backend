@@ -45,9 +45,15 @@ def route_inventory():
     if inventory:
         command.append("-i")
         command.append(inventory)
-    output = subprocess.check_output(
+    process = subprocess.Popen(
         command,
-        cwd=ANSIBLE_PROJECT_PATH
+        cwd=ANSIBLE_PROJECT_PATH,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE
     )
+    output, error = process.communicate()
+    if error:
+        return jsonify({"error": error.decode()}), 500
+
     output = output.decode()
     return json.loads(output)
