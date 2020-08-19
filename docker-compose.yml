@@ -23,7 +23,7 @@ services:
       CELERY_BROKER_URL: redis://redis
       CELERY_RESULT_BACKEND: redis://redis
     volumes:
-      - /home/ansible/ansible:/ansible:ro
+      - /home/ansible/clustarr/ansible:/ansible:ro
       - /home/ansible/.ssh:/root/.ssh/:ro
       - /etc/ansible/proxmox.py:/etc/ansible/proxmox.py:ro
       - /etc/ansible/proxmox.json:/etc/ansible/proxmox.json:ro
@@ -57,7 +57,7 @@ services:
       CELERY_BROKER_URL: redis://redis
       CELERY_RESULT_BACKEND: redis://redis
     volumes:
-      - /home/ansible/ansible:/ansible:ro
+      - /home/ansible/clustarr/ansible:/ansible:ro
       - /etc/ansible/proxmox.py:/etc/ansible/proxmox.py:ro
       - /etc/ansible/proxmox.json:/etc/ansible/proxmox.json:ro
     depends_on:
