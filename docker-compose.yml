@@ -28,10 +28,10 @@ services:
       CELERY_RESULT_BACKEND: redis://redis
     volumes:
       - /home/ansible/clustarr/ansible:/ansible:ro
-      - /home/ansible/.ssh:/root/.ssh/:ro
+      - /home/ansible/.ssh:/home/abc/.ssh/:ro
       - /etc/ansible/proxmox.py:/etc/ansible/proxmox.py:ro
       - /etc/ansible/proxmox.json:/etc/ansible/proxmox.json:ro
-    user: guest
+    user: abc
     depends_on:
       - build
       - redis
