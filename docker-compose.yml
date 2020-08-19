@@ -4,6 +4,10 @@ services:
   # redis is used by app and celery to exchange background task information
   redis:
     image: redis:alpine
+    environment:
+      REDIS_APPENDONLY: "yes"
+    volumes:
+      - redis:/data
     expose:
       - 6379
 
@@ -44,7 +48,7 @@ services:
     depends_on:
       - build
       - redis
-    command: celery flower --app clustarr_backend.celery --loglevel=info
+    command: celery flower --app clustarr_backend.celery --persistent --loglevel=info
 
   # flask provides the api and forwards playbook tasks to the celery service
   flask:
@@ -64,3 +68,6 @@ services:
       - build
       - celery
     command: gunicorn --bind 0.0.0.0:5000 clustarr_backend:app
+
+volumes:
+  redis:
