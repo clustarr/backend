@@ -31,6 +31,7 @@ services:
       - /home/ansible/.ssh:/root/.ssh/:ro
       - /etc/ansible/proxmox.py:/etc/ansible/proxmox.py:ro
       - /etc/ansible/proxmox.json:/etc/ansible/proxmox.json:ro
+    user: guest
     depends_on:
       - build
       - redis
