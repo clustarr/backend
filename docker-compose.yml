@@ -4,6 +4,7 @@ services:
   # redis is used by app and celery to exchange background task information
   redis:
     image: redis:alpine
+    restart: unless-stopped
     environment:
       REDIS_APPENDONLY: "yes"
     volumes:
